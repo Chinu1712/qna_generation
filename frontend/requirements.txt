@@ -25,3 +25,4 @@ langchain-google-genai
 bs4
 reportlab
 docx
+exceptions
