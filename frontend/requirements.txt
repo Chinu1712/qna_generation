@@ -22,3 +22,4 @@ tiktoken
 # ---- Compatibility helpers ----
 requests
 langchain-google-genai
+bs4
