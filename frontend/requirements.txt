@@ -1,28 +1,27 @@
-# ---- Core framework ----
+# Core
 streamlit
 python-dotenv
+requests
+pandas
 
-# ---- LangChain core ----
+# LangChain
 langchain
 langchain-core
 langchain-community
 langchain-text-splitters
-
-# ---- Groq integration ----
 langchain-groq
+langchain-google-genai
 
-# ---- PDF and document parsing ----
+# Document parsing
 pypdf
 PyMuPDF
 pdfplumber
-
-# ---- Optional: text splitting / utilities ----
-tiktoken
-
-# ---- Compatibility helpers ----
-requests
-langchain-google-genai
-bs4
+beautifulsoup4
 reportlab
-docx
-exceptions
+python-docx
+openpyxl
+
+# Tokenization / embeddings / vector DB
+tiktoken
+sentence-transformers
+chromadb
