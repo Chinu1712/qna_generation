@@ -22,3 +22,4 @@ openpyxl
 
 chromadb
 sentence-transformers
+werkzeug
