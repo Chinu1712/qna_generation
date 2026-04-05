@@ -35,6 +35,7 @@ load_dotenv(dotenv_path=ENV_PATH)
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
+
 # =========================================================
 # SESSION STATE
 # =========================================================
@@ -264,6 +265,14 @@ def get_vector_store():
     return vector_db, embedding_model
 
 
+def show_response_error(prefix: str, response: requests.Response):
+    st.error(f"{prefix}. Status code: {response.status_code}")
+    try:
+        st.json(response.json())
+    except Exception:
+        st.text(response.text)
+
+
 # =========================================================
 # AUTH FUNCTIONS
 # =========================================================
@@ -287,17 +296,15 @@ def signup_ui():
                     "email": email,
                     "password": password
                 },
-                timeout=15
+                timeout=20
             )
 
             if response.status_code == 200:
                 st.success("Account created successfully. Please login.")
             else:
-                try:
-                    st.error(response.json().get("detail", "Signup failed"))
-                except Exception:
-                    st.error("Signup failed")
-        except Exception as e:
+                show_response_error("Signup failed", response)
+
+        except requests.exceptions.RequestException as e:
             st.error(f"Backend connection error: {e}")
 
 
@@ -319,7 +326,7 @@ def login_ui():
                     "identifier": identifier,
                     "password": password
                 },
-                timeout=15
+                timeout=20
             )
 
             if response.status_code == 200:
@@ -329,11 +336,9 @@ def login_ui():
                 st.success("Login successful")
                 st.rerun()
             else:
-                try:
-                    st.error(response.json().get("detail", "Login failed"))
-                except Exception:
-                    st.error("Login failed")
-        except Exception as e:
+                show_response_error("Login failed", response)
+
+        except requests.exceptions.RequestException as e:
             st.error(f"Backend connection error: {e}")
 
 
@@ -375,11 +380,9 @@ def save_pdf_to_backend():
             st.success("PDF saved successfully to backend database.")
             st.json(response.json())
         else:
-            try:
-                st.error(response.json().get("detail", "Failed to save PDF"))
-            except Exception:
-                st.error("Failed to save PDF")
-    except Exception as e:
+            show_response_error("Failed to save PDF", response)
+
+    except requests.exceptions.RequestException as e:
         st.error(f"Backend connection error: {e}")
 
 
@@ -387,7 +390,6 @@ def save_pdf_to_backend():
 # QUESTION GENERATION LOGIC
 # =========================================================
 def chatbot_ui():
-    load_dotenv()
     st.set_page_config(page_title="Exam Questions Generator", page_icon="📘")
 
     col1, col2 = st.columns([4, 1])
