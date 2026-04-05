@@ -33,8 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent
 ENV_PATH = BASE_DIR.parent / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
-BACKEND_URL = "http://127.0.0.1:8000"
-
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
 
 # =========================================================
 # SESSION STATE
