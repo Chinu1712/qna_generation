@@ -1,10 +1,8 @@
-# Core
 streamlit
 python-dotenv
 requests
 pandas
 
-# LangChain
 langchain
 langchain-core
 langchain-community
@@ -12,16 +10,15 @@ langchain-text-splitters
 langchain-groq
 langchain-google-genai
 
-# Document parsing
 pypdf
 PyMuPDF
 pdfplumber
+tiktoken
+
 beautifulsoup4
 reportlab
 python-docx
 openpyxl
 
-# Tokenization / embeddings / vector DB
-tiktoken
-sentence-transformers
 chromadb
+sentence-transformers
