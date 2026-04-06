@@ -22,4 +22,6 @@ openpyxl
 
 chromadb
 sentence-transformers
-werkzeug
+torch
+torchvision
+transformers
