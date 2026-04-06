@@ -22,9 +22,6 @@ from langchain_core.runnables import RunnableSequence
 from langchain_community.document_loaders import PyMuPDFLoader
 from docx import Document as DocxDocument
 
-from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain_community.vectorstores import Chroma
-
 
 # =========================================================
 # LOAD ENV
@@ -150,7 +147,7 @@ def extract_text_from_txt(file_bytes: bytes, filename: str) -> str:
     return clean_text(f"TEXT FILE ({filename}):\n{text}")
 
 
-def extract_text_from_website(url: str, timeout: int = 15) -> str:
+def extract_text_from_website(url: str, timeout: int = 20) -> str:
     headers = {"User-Agent": "Mozilla/5.0"}
     r = requests.get(url, headers=headers, timeout=timeout)
     r.raise_for_status()
@@ -256,6 +253,9 @@ def make_pdf_bytes(title: str, body: str) -> bytes:
 
 @st.cache_resource
 def get_vector_store():
+    from langchain_community.embeddings import SentenceTransformerEmbeddings
+    from langchain_community.vectorstores import Chroma
+
     embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     vector_db = Chroma(
         collection_name="questions_generation_tool",
@@ -296,7 +296,7 @@ def signup_ui():
                     "email": email,
                     "password": password
                 },
-                timeout=20
+                timeout=90
             )
 
             if response.status_code == 200:
@@ -304,6 +304,8 @@ def signup_ui():
             else:
                 show_response_error("Signup failed", response)
 
+        except requests.exceptions.ReadTimeout:
+            st.error("The backend took too long to respond. On free Render, it may be waking up from sleep. Wait about a minute and try again.")
         except requests.exceptions.RequestException as e:
             st.error(f"Backend connection error: {e}")
 
@@ -326,7 +328,7 @@ def login_ui():
                     "identifier": identifier,
                     "password": password
                 },
-                timeout=20
+                timeout=90
             )
 
             if response.status_code == 200:
@@ -338,6 +340,8 @@ def login_ui():
             else:
                 show_response_error("Login failed", response)
 
+        except requests.exceptions.ReadTimeout:
+            st.error("The backend took too long to respond. On free Render, it may be waking up from sleep. Wait about a minute and try again.")
         except requests.exceptions.RequestException as e:
             st.error(f"Backend connection error: {e}")
 
@@ -373,7 +377,7 @@ def save_pdf_to_backend():
             f"{BACKEND_URL}/save-pdf",
             data=data,
             files=files,
-            timeout=30
+            timeout=120
         )
 
         if response.status_code == 200:
@@ -382,6 +386,8 @@ def save_pdf_to_backend():
         else:
             show_response_error("Failed to save PDF", response)
 
+    except requests.exceptions.ReadTimeout:
+        st.error("The backend took too long to respond. On free Render, it may be waking up from sleep. Wait about a minute and try again.")
     except requests.exceptions.RequestException as e:
         st.error(f"Backend connection error: {e}")
 
@@ -404,7 +410,7 @@ def chatbot_ui():
         if st.button("Logout"):
             logout()
 
-    vectorstore, embedding_model = get_vector_store()
+    _, _ = get_vector_store()
 
     uploaded_files = st.file_uploader(
         "Upload file(s)",
@@ -437,12 +443,10 @@ def chatbot_ui():
         num_objective = st.number_input(
             "Number of objective questions", min_value=0, max_value=200, value=10, step=1
         )
-
     elif question_type == "Subjective":
         num_subjective = st.number_input(
             "Number of subjective questions", min_value=0, max_value=200, value=5, step=1
         )
-
     elif question_type == "Both (Objective + Subjective)":
         num_objective = st.number_input(
             "Number of objective questions", min_value=0, max_value=200, value=10, step=1
