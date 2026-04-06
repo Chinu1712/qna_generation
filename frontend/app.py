@@ -251,20 +251,6 @@ def make_pdf_bytes(title: str, body: str) -> bytes:
     return buffer.read()
 
 
-@st.cache_resource
-def get_vector_store():
-    from langchain_community.embeddings import SentenceTransformerEmbeddings
-    from langchain_community.vectorstores import Chroma
-
-    embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    vector_db = Chroma(
-        collection_name="questions_generation_tool",
-        embedding_function=embedding_model,
-        persist_directory="chroma_db",
-    )
-    return vector_db, embedding_model
-
-
 def show_response_error(prefix: str, response: requests.Response):
     st.error(f"{prefix}. Status code: {response.status_code}")
     try:
@@ -409,8 +395,6 @@ def chatbot_ui():
         st.write(f"**User:** {st.session_state.user['username']}")
         if st.button("Logout"):
             logout()
-
-    _, _ = get_vector_store()
 
     uploaded_files = st.file_uploader(
         "Upload file(s)",
